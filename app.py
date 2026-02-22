@@ -14,7 +14,7 @@ from providers.openai_provider import OpenAIProvider
 
 # 1. Configuração do Modelo
 config = ModelConfig(
-    provider="openai",
+    provider="gemini",
     model_name="gemini-3-flash", # Ou "gemini-3-flash" se usar o Google
     temperature=0.7,
     max_tokens=2000 # Limite de memória antes do truncamento

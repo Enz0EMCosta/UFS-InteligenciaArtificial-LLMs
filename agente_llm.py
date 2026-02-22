@@ -1,6 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Dict, Tuple, Callable
+import google.generativeai as genai # Requer instalação da biblioteca para o gemini
+import openai # Requer instalação da biblioteca (mesmo com openai)
+# outras ias podem requerer outras bibliotecas apenas openai e gemini vão ser usadas no teste 
+
+
+'''o uso do codigo implica a criação de uma subclasse herdada baseada 
+no modelo qu'''
 
 # ==========================================
 # 1. Estrutura de Configuração (Base)
@@ -123,3 +130,58 @@ class ConversationalAgent:
         self.history.append(reply_msg)
 
         return reply_text
+
+# ==========================================
+# 5. IMPLEMENTAÇÕES DOS PROVEDORES (Classes Herdadas entram AQUI!)
+# ==========================================
+
+class OpenAIProvider(LLMProvider):
+    def call_api(self, config: ModelConfig, messages: List[Dict[str, str]]) -> str:
+        # Instanciar cliente (A chave da API deve vir de variáveis de ambiente .env)
+        client = openai.OpenAI() 
+        
+        response = client.chat.completions.create(
+            model=config.model_name,
+            messages=messages,
+            temperature=config.temperature
+        )
+        return response.choices[0].message.content
+
+
+
+class GeminiProvider(LLMProvider):
+    def call_api(self, config: ModelConfig, messages: List[Dict[str, str]]) -> str:
+        # O Gemini usa nomenclaturas diferentes (ex: "model" em vez de "assistant")
+        # O provedor tem a responsabilidade de traduzir o padrão do framework para a API
+        formatted_messages = []
+        for msg in messages:
+            role = "model" if msg["role"] == "assistant" else msg["role"]
+            formatted_messages.append({"role": role, "parts": [msg["content"]]})
+            
+        model = genai.GenerativeModel(config.model_name)
+        response = model.generate_content(
+            formatted_messages,
+            generation_config={"temperature": config.temperature}
+        )
+        return response.text
+
+
+# 1. Escolha a configuração e o provedor
+config = ModelConfig(
+    provider="openai",
+    model_name="gpt-4o", #aparentemente gpt4o nn existe mais
+    temperature=0.7,
+    max_tokens=2000 # Limite de memória do contexto
+)
+provider = OpenAIProvider() # ou GeminiProvider(), KimiProvider()...
+
+# 2. Instancie o Agente 
+agent = ConversationalAgent(config, provider)
+agent.set_system_prompt("Você é um assistente especialista em programação. Responda de forma concisa.")
+
+# 3. Utilize em um loop, endpoint de API, ou interface gráfica
+resposta = agent.chat("Olá, como você gerencia sua memória?")
+print(resposta)
+
+resposta_2 = agent.chat("Quais foram as exatas palavras da minha pergunta anterior?")
+print(resposta_2)

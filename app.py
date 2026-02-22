@@ -45,8 +45,7 @@ def interagir(mensagem: str, historico: list) -> str:
 demo = gr.ChatInterface(
     fn=interagir,
     title="🤖 Framework Multimodelo Agnóstico",
-    description="Implementação de Orquestração, Engenharia de Prompt e Gestão de Memória (Truncamento).",
-    theme="soft"
+    description="Implementação de Orquestração, Engenharia de Prompt e Gestão de Memória (Truncamento)."
 )
 
 if __name__ == "__main__":

@@ -1,31 +1,40 @@
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from typing import List, Dict
 from core.interfaces import LLMProvider
 from core.config import ModelConfig
 
 class GeminiProvider(LLMProvider):
-    """Implementação concreta para a API do Google Gemini."""
+    """Implementação concreta para a API do Google Gemini (Novo SDK)."""
     
     def __init__(self):
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("A variável de ambiente 'GEMINI_API_KEY' não está configurada.")
-        genai.configure(api_key=api_key)
+        # O novo SDK usa genai.Client()
+        self.client = genai.Client(api_key=api_key)
 
     def call_api(self, config: ModelConfig, messages: List[Dict[str, str]]) -> str:
-        # O Gemini tem regras diferentes para a nomenclatura das roles
         formatted_messages = []
+        
         for msg in messages:
-            # Ignoramos o system prompt na lista de mensagens padrão do Gemini (deve ser passado na inicialização, 
-            # mas para simplificar o wrapper unificado, injetamos como instrução de usuário inicial)
             role = "model" if msg["role"] == "assistant" else "user"
             content = f"Instrução de Sistema: {msg['content']}" if msg["role"] == "system" else msg["content"]
-            formatted_messages.append({"role": role, "parts": [content]})
             
-        model = genai.GenerativeModel(config.model_name)
-        response = model.generate_content(
-            formatted_messages,
-            generation_config={"temperature": config.temperature}
+            # Formatação exigida pelo novo SDK google.genai
+            formatted_messages.append(
+                types.Content(
+                    role=role,
+                    parts=[types.Part.from_text(text=content)]
+                )
+            )
+            
+        response = self.client.models.generate_content(
+            model=config.model_name,
+            contents=formatted_messages,
+            config=types.GenerateContentConfig(
+                temperature=config.temperature,
+            )
         )
         return response.text

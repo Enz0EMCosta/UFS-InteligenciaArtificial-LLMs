@@ -29,4 +29,4 @@ Para facilitar a visualização do aprendizado do agente, do ambiente estocásti
 implementamos uma interface gráfica completa utilizando a biblioteca Streamlit. O projeto também foi implantado na nuvem e
 pode ser testado diretamente pelo navegador através do **Hugging Face Spaces**: 
 
-🔗 **[Clique aqui para acessar a Simulação Online] (https://huggingface.co/spaces/TastelessNeutrino/LLM-Grupo11)**
+🔗 **[Clique aqui para acessar a Simulação Online](https://huggingface.co/spaces/TastelessNeutrino/LLM-Grupo11)**

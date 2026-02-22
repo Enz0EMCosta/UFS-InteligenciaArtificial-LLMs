@@ -3,7 +3,7 @@
 - Enzo Emanuel Maia Costa 
 - Jackson Santana Carvalho Junior
 - Adam Guilherme Mendes Lima
-- Mateus Henrique Silva de Melo
+- Matheus Henrique Silva de Melo
 - Samuel Guimarães Silva
 
 
